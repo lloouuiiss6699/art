@@ -1,15 +1,14 @@
 const grid = document.getElementById('grid');
 const overlaySrc = 'mee.png';
-const baseScale = 0.7; // base 70% of natural size
 
 // Generate a random Picsum image
 function getRandomImage() {
-  const width = 800 + Math.floor(Math.random() * 400);  // 800-1200px
-  const height = 600 + Math.floor(Math.random() * 300); // 600-900px
+  const width = 500 + Math.floor(Math.random() * 300);  // 500–800px
+  const height = 400 + Math.floor(Math.random() * 200); // 400–600px
   return { src: `https://picsum.photos/${width}/${height}?random=${Math.random()}`, width, height };
 }
 
-// Make overlay draggable
+// Make overlay draggable (no rotation while dragging)
 function makeDraggable(el) {
   let offsetX, offsetY, isDragging = false;
 
@@ -40,9 +39,9 @@ function getRandomRotation() {
   return Math.random() * 30 - 15;
 }
 
-// Returns a small scale variation around baseScale (±5%)
+// Returns a random scale between 0.9 and 1.1
 function getRandomScale() {
-  return baseScale + (Math.random() * 0.1 - 0.05); // 0.65 - 0.75
+  return 0.9 + Math.random() * 0.2;
 }
 
 function addSingleImage() {
@@ -73,10 +72,9 @@ function addSingleImage() {
     bg.style.transformOrigin = 'center center';
     bg.style.transform = `rotate(${getRandomRotation()}deg)`;
 
-    // Append background first
     container.appendChild(bg);
 
-    // Overlay, only after background is appended
+    // Overlay
     const overlay = document.createElement('img');
     overlay.src = overlaySrc;
     overlay.className = 'overlay';
@@ -86,9 +84,9 @@ function addSingleImage() {
     overlay.style.transformOrigin = 'center center';
     overlay.style.transform = `rotate(${getRandomRotation()}deg)`;
 
-    // Avoid outer 10% of background image
-    const marginX = width * 0.1;
-    const marginY = height * 0.1;
+    // Overlay stays inside inner 60% of image (20% margin)
+    const marginX = width * 0.2;
+    const marginY = height * 0.2;
     const overlayMaxX = width - 120 - 2 * marginX;
     const overlayMaxY = height - 120 - 2 * marginY;
     overlay.style.left = marginX + Math.floor(Math.random() * overlayMaxX) + 'px';
@@ -99,8 +97,8 @@ function addSingleImage() {
 
     makeDraggable(overlay);
 
-    // Schedule next image slowly
-    setTimeout(addSingleImage, 1500 + Math.random() * 1000);
+    // Schedule next image ~1 second
+    setTimeout(addSingleImage, 1000 + Math.random() * 300);
   };
 }
 
