@@ -1,13 +1,15 @@
 const grid = document.getElementById('grid');
 const overlaySrc = 'mee.png';
-const scale = 0.8; // 80% of natural image size
+const baseScale = 0.8; // base 80% of natural image size
 
+// Generate a random large Picsum image
 function getRandomImage() {
   const width = 1500 + Math.floor(Math.random() * 500);  // 1500-2000px
   const height = 1000 + Math.floor(Math.random() * 400); // 1000-1400px
   return { src: `https://picsum.photos/${width}/${height}?random=${Math.random()}`, width, height };
 }
 
+// Make overlay draggable
 function makeDraggable(el) {
   let offsetX, offsetY, isDragging = false;
 
@@ -38,6 +40,11 @@ function getRandomRotation() {
   return Math.random() * 30 - 15;
 }
 
+// Returns a small scale variation around baseScale (±5%)
+function getRandomScale() {
+  return baseScale + (Math.random() * 0.1 - 0.05); // 0.75 - 0.85
+}
+
 function addSingleImage() {
   const imgData = getRandomImage();
   const container = document.createElement('div');
@@ -45,23 +52,26 @@ function addSingleImage() {
 
   const bg = document.createElement('img');
   bg.src = imgData.src;
+  bg.style.display = 'block';
 
   bg.onload = () => {
+    const scale = getRandomScale();
     const width = bg.naturalWidth * scale;
     const height = bg.naturalHeight * scale;
     bg.width = width;
     bg.height = height;
 
-    // Apply random rotation to Picsum image
-    bg.style.transform = `rotate(${getRandomRotation()}deg)`;
-
-    // Centered random positioning
+    // Centered random position
     const centerX = grid.clientWidth / 2;
     const centerY = grid.clientHeight / 2;
-    const offsetX = Math.floor(Math.random() * 400 - 200);
-    const offsetY = Math.floor(Math.random() * 300 - 150);
+    const offsetX = Math.floor(Math.random() * 400 - 200); // ±200px
+    const offsetY = Math.floor(Math.random() * 300 - 150); // ±150px
     container.style.left = centerX + offsetX - width / 2 + 'px';
     container.style.top = centerY + offsetY - height / 2 + 'px';
+
+    // Apply random rotation
+    bg.style.transformOrigin = 'center center';
+    bg.style.transform = `rotate(${getRandomRotation()}deg)`;
 
     // Overlay
     const overlay = document.createElement('img');
@@ -69,7 +79,9 @@ function addSingleImage() {
     overlay.className = 'overlay';
     overlay.style.width = '120px';
     overlay.style.height = 'auto';
-    overlay.style.transform = `rotate(${getRandomRotation()}deg)`; // random rotation
+    overlay.style.display = 'block';
+    overlay.style.transformOrigin = 'center center';
+    overlay.style.transform = `rotate(${getRandomRotation()}deg)`;
 
     const overlayMaxX = width - 120;
     const overlayMaxY = height - 120;
