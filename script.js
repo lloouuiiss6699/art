@@ -1,11 +1,11 @@
 const grid = document.getElementById('grid');
 const overlaySrc = 'mee.png';
-const baseScale = 0.8; // base 80% of natural image size
+const baseScale = 0.7; // smaller images
 
 // Generate a random large Picsum image
 function getRandomImage() {
-  const width = 1500 + Math.floor(Math.random() * 500);  // 1500-2000px
-  const height = 1000 + Math.floor(Math.random() * 400); // 1000-1400px
+  const width = 1000 + Math.floor(Math.random() * 400);  // 1000-1400px
+  const height = 800 + Math.floor(Math.random() * 300);  // 800-1100px
   return { src: `https://picsum.photos/${width}/${height}?random=${Math.random()}`, width, height };
 }
 
@@ -42,7 +42,7 @@ function getRandomRotation() {
 
 // Returns a small scale variation around baseScale (±5%)
 function getRandomScale() {
-  return baseScale + (Math.random() * 0.1 - 0.05); // 0.75 - 0.85
+  return baseScale + (Math.random() * 0.1 - 0.05); // 0.65 - 0.75
 }
 
 function addSingleImage() {
@@ -69,11 +69,13 @@ function addSingleImage() {
     container.style.left = centerX + offsetX - width / 2 + 'px';
     container.style.top = centerY + offsetY - height / 2 + 'px';
 
-    // Apply random rotation
+    // Apply random rotation to background
     bg.style.transformOrigin = 'center center';
     bg.style.transform = `rotate(${getRandomRotation()}deg)`;
 
-    // Overlay
+    container.appendChild(bg); // append background first
+
+    // Only after background, add overlay
     const overlay = document.createElement('img');
     overlay.src = overlaySrc;
     overlay.className = 'overlay';
@@ -88,10 +90,7 @@ function addSingleImage() {
     overlay.style.left = Math.floor(Math.random() * overlayMaxX) + 'px';
     overlay.style.top = Math.floor(Math.random() * overlayMaxY) + 'px';
 
-    container.appendChild(bg);
     container.appendChild(overlay);
-    grid.appendChild(container);
-
     makeDraggable(overlay);
 
     // Schedule next image slowly
@@ -99,5 +98,5 @@ function addSingleImage() {
   };
 }
 
-// Start the slow collage
+// Start the collage
 addSingleImage();
