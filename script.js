@@ -8,7 +8,7 @@ function getRandomImage() {
   return { src: `https://picsum.photos/${width}/${height}?random=${Math.random()}`, width, height };
 }
 
-// Make overlay draggable (no rotation while dragging)
+// Make overlay draggable (does not rotate while dragging)
 function makeDraggable(el) {
   let offsetX, offsetY, isDragging = false;
 
@@ -34,12 +34,12 @@ function makeDraggable(el) {
   });
 }
 
-// Returns a random rotation between -15 and +15 degrees
+// Random rotation between -15 and +15 degrees
 function getRandomRotation() {
   return Math.random() * 30 - 15;
 }
 
-// Returns a random scale between 0.9 and 1.1
+// Random scale between 0.9 and 1.1
 function getRandomScale() {
   return 0.9 + Math.random() * 0.2;
 }
@@ -49,9 +49,12 @@ function addSingleImage() {
   const container = document.createElement('div');
   container.className = 'image-container';
 
-  const bg = document.createElement('img');
+  const bg = new Image();
   bg.src = imgData.src;
   bg.style.display = 'block';
+
+  // Schedule next image immediately (~1 per second)
+  setTimeout(addSingleImage, 1000 + Math.random() * 300);
 
   bg.onload = () => {
     const scale = getRandomScale();
@@ -60,47 +63,46 @@ function addSingleImage() {
     bg.width = width;
     bg.height = height;
 
-    // Centered random position
+    // Centered random position for container
     const centerX = grid.clientWidth / 2;
     const centerY = grid.clientHeight / 2;
-    const offsetX = Math.floor(Math.random() * 400 - 200); // ±200px
-    const offsetY = Math.floor(Math.random() * 300 - 150); // ±150px
+    const offsetX = Math.floor(Math.random() * 400 - 200);
+    const offsetY = Math.floor(Math.random() * 300 - 150);
     container.style.left = centerX + offsetX - width / 2 + 'px';
     container.style.top = centerY + offsetY - height / 2 + 'px';
 
-    // Random rotation for background
+    // Apply rotation to background
     bg.style.transformOrigin = 'center center';
     bg.style.transform = `rotate(${getRandomRotation()}deg)`;
 
     container.appendChild(bg);
-
-    // Overlay
-    const overlay = document.createElement('img');
-    overlay.src = overlaySrc;
-    overlay.className = 'overlay';
-    overlay.style.width = '120px';
-    overlay.style.height = 'auto';
-    overlay.style.display = 'block';
-    overlay.style.transformOrigin = 'center center';
-    overlay.style.transform = `rotate(${getRandomRotation()}deg)`;
-
-    // Overlay stays inside inner 60% of image (20% margin)
-    const marginX = width * 0.2;
-    const marginY = height * 0.2;
-    const overlayMaxX = width - 120 - 2 * marginX;
-    const overlayMaxY = height - 120 - 2 * marginY;
-    overlay.style.left = marginX + Math.floor(Math.random() * overlayMaxX) + 'px';
-    overlay.style.top = marginY + Math.floor(Math.random() * overlayMaxY) + 'px';
-
-    container.appendChild(overlay);
     grid.appendChild(container);
 
-    makeDraggable(overlay);
+    // Delay overlay appearance by 0.5s for suspense
+    setTimeout(() => {
+      const overlay = document.createElement('img');
+      overlay.src = overlaySrc;
+      overlay.className = 'overlay';
+      overlay.style.width = '120px';
+      overlay.style.height = 'auto';
+      overlay.style.display = 'block';
+      overlay.style.transformOrigin = 'center center';
+      overlay.style.transform = `rotate(${getRandomRotation()}deg)`;
 
-    // Schedule next image ~1 second
-    setTimeout(addSingleImage, 1000 + Math.random() * 300);
+      // Overlay inside inner 60% of image (20% margin)
+      const marginX = width * 0.2;
+      const marginY = height * 0.2;
+      const overlayMaxX = width - 120 - 2 * marginX;
+      const overlayMaxY = height - 120 - 2 * marginY;
+      overlay.style.left = marginX + Math.floor(Math.random() * overlayMaxX) + 'px';
+      overlay.style.top = marginY + Math.floor(Math.random() * overlayMaxY) + 'px';
+
+      container.appendChild(overlay);
+      makeDraggable(overlay);
+    }, 500);
   };
 }
 
 // Start the collage
 addSingleImage();
+
