@@ -50,13 +50,13 @@ function addSingleImage() {
   container.className = 'image-container';
   grid.appendChild(container); // append container immediately
 
-  // Schedule next image ~1 second from now, independent of load
+  // Schedule next image ~1 second from now
   setTimeout(addSingleImage, 1000 + Math.random() * 300);
 
   const bg = new Image();
   bg.src = imgData.src;
 
-  // When background loads
+  // Only append overlay after background has loaded
   bg.onload = () => {
     const scale = getRandomScale();
     const width = bg.naturalWidth * scale;
@@ -64,7 +64,7 @@ function addSingleImage() {
     bg.width = width;
     bg.height = height;
 
-    // Random centered position for container
+    // Random centered position
     const centerX = grid.clientWidth / 2;
     const centerY = grid.clientHeight / 2;
     const offsetX = Math.floor(Math.random() * 400 - 200);
@@ -78,7 +78,7 @@ function addSingleImage() {
 
     container.appendChild(bg);
 
-    // Delay overlay by 0.5s for suspense
+    // Delay overlay by 0.5s
     setTimeout(() => {
       const overlay = document.createElement('img');
       overlay.src = overlaySrc;
