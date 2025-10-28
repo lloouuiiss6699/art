@@ -1,13 +1,11 @@
 const grid = document.getElementById('grid');
 const overlaySrc = 'mee.png';
-const batchSize = 4; // fewer images per batch
-let loading = false;
-let cooldown = false;
+const scale = 0.8; // 80% of natural image size
 
-// Generate a random Picsum image URL (larger for noticeable scaling)
+// Generate a random large Picsum image
 function getRandomImage() {
-  const width = 800 + Math.floor(Math.random() * 400);  // 800-1200px
-  const height = 600 + Math.floor(Math.random() * 300); // 600-900px
+  const width = 1500 + Math.floor(Math.random() * 500);  // 1500-2000px
+  const height = 1000 + Math.floor(Math.random() * 400); // 1000-1400px
   return { src: `https://picsum.photos/${width}/${height}?random=${Math.random()}`, width, height };
 }
 
@@ -37,72 +35,51 @@ function makeDraggable(el) {
   });
 }
 
-// Load images with stagger and larger scale
-function loadMoreImages() {
-  if (loading) return;
-  loading = true;
+// Add a single image with overlay, then schedule next
+function addSingleImage() {
+  const imgData = getRandomImage();
+  const container = document.createElement('div');
+  container.className = 'image-container';
 
-  for (let i = 0; i < batchSize; i++) {
-    const delay = i * 600 + Math.floor(Math.random() * 400); // 600-1000ms stagger
-    setTimeout(() => {
-      const imgData = getRandomImage();
-      const container = document.createElement('div');
-      container.className = 'image-container';
+  const bg = document.createElement('img');
+  bg.src = imgData.src;
 
-      const bg = document.createElement('img');
-      bg.src = imgData.src;
+  bg.onload = () => {
+    const width = bg.naturalWidth * scale;
+    const height = bg.naturalHeight * scale;
+    bg.width = width;
+    bg.height = height;
 
-      bg.onload = () => {
-        const scale = 0.8; // 80% of natural size
-        const width = bg.naturalWidth * scale;
-        const height = bg.naturalHeight * scale;
-        bg.width = width;
-        bg.height = height;
+    // Centered random position
+    const centerX = grid.clientWidth / 2;
+    const centerY = grid.clientHeight / 2;
+    const offsetX = Math.floor(Math.random() * 400 - 200); // ±200px
+    const offsetY = Math.floor(Math.random() * 300 - 150); // ±150px
+    container.style.left = centerX + offsetX - width / 2 + 'px';
+    container.style.top = centerY + offsetY - height / 2 + 'px';
 
-        // Centered random positioning
-        const centerX = grid.clientWidth / 2;
-        const centerY = grid.clientHeight / 2;
-        const offsetX = Math.floor(Math.random() * 400 - 200); // ±200px
-        const offsetY = Math.floor(Math.random() * 300 - 150); // ±150px
-        container.style.left = centerX + offsetX - width / 2 + 'px';
-        container.style.top = centerY + offsetY - height / 2 + 'px';
+    // Overlay
+    const overlay = document.createElement('img');
+    overlay.src = overlaySrc;
+    overlay.className = 'overlay';
+    overlay.style.width = '120px';
+    overlay.style.height = 'auto';
 
-        // Overlay
-        const overlay = document.createElement('img');
-        overlay.src = overlaySrc;
-        overlay.className = 'overlay';
-        overlay.style.width = '100px';
-        overlay.style.height = 'auto';
+    const overlayMaxX = width - 120;
+    const overlayMaxY = height - 120;
+    overlay.style.left = Math.floor(Math.random() * overlayMaxX) + 'px';
+    overlay.style.top = Math.floor(Math.random() * overlayMaxY) + 'px';
 
-        const overlayMaxX = width - 100;
-        const overlayMaxY = height - 100;
-        overlay.style.left = Math.floor(Math.random() * overlayMaxX) + 'px';
-        overlay.style.top = Math.floor(Math.random() * overlayMaxY) + 'px';
+    container.appendChild(bg);
+    container.appendChild(overlay);
+    grid.appendChild(container);
 
-        container.appendChild(bg);
-        container.appendChild(overlay);
-        grid.appendChild(container);
+    makeDraggable(overlay);
 
-        makeDraggable(overlay);
-      };
-    }, delay);
-  }
-
-  // Small cooldown to prevent too many images loading at once
-  setTimeout(() => {
-    loading = false;
-  }, 1200);
+    // Schedule next image after random 1.5–2.5s
+    setTimeout(addSingleImage, 1500 + Math.random() * 1000);
+  };
 }
 
-// Infinite scroll with cooldown
-window.addEventListener('scroll', () => {
-  if (cooldown) return;
-  if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
-    loadMoreImages();
-    cooldown = true;
-    setTimeout(() => { cooldown = false; }, 1000); // 1s cooldown
-  }
-});
-
-// Initial batch
-loadMoreImages();
+// Start the slow, gradual collage
+addSingleImage();
