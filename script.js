@@ -48,13 +48,28 @@ function addSingleImage() {
   const imgData = getRandomImage();
   const container = document.createElement('div');
   container.className = 'image-container';
+  grid.appendChild(container); // append container immediately
+
+  // Schedule next image ~1 second from now, independent of load
+  setTimeout(addSingleImage, 1000 + Math.random() * 300);
 
   const bg = new Image();
   bg.src = imgData.src;
-  bg.style.display = 'block';
 
-  // Schedule next image immediately (~1 per second)
-  setTimeout(addSingleImage, 1000 + Math.random() * 300);
+  // Start overlay timer immediately for suspense
+  setTimeout(() => {
+    const overlay = document.createElement('img');
+    overlay.src = overlaySrc;
+    overlay.className = 'overlay';
+    overlay.style.width = '120px';
+    overlay.style.height = 'auto';
+    overlay.style.display = 'block';
+    overlay.style.transformOrigin = 'center center';
+    overlay.style.transform = `rotate(${getRandomRotation()}deg)`;
+
+    container.appendChild(overlay);
+    makeDraggable(overlay);
+  }, 500); // 0.5-second delay
 
   bg.onload = () => {
     const scale = getRandomScale();
@@ -63,7 +78,7 @@ function addSingleImage() {
     bg.width = width;
     bg.height = height;
 
-    // Centered random position for container
+    // Random centered position for container
     const centerX = grid.clientWidth / 2;
     const centerY = grid.clientHeight / 2;
     const offsetX = Math.floor(Math.random() * 400 - 200);
@@ -71,38 +86,24 @@ function addSingleImage() {
     container.style.left = centerX + offsetX - width / 2 + 'px';
     container.style.top = centerY + offsetY - height / 2 + 'px';
 
-    // Apply rotation to background
+    // Rotation for background
     bg.style.transformOrigin = 'center center';
     bg.style.transform = `rotate(${getRandomRotation()}deg)`;
 
-    container.appendChild(bg);
-    grid.appendChild(container);
+    container.insertBefore(bg, container.firstChild); // behind overlay
 
-    // Delay overlay appearance by 0.5s for suspense
-    setTimeout(() => {
-      const overlay = document.createElement('img');
-      overlay.src = overlaySrc;
-      overlay.className = 'overlay';
-      overlay.style.width = '120px';
-      overlay.style.height = 'auto';
-      overlay.style.display = 'block';
-      overlay.style.transformOrigin = 'center center';
-      overlay.style.transform = `rotate(${getRandomRotation()}deg)`;
-
-      // Overlay inside inner 60% of image (20% margin)
+    // Adjust overlay position now that size is known
+    const overlay = container.querySelector('.overlay');
+    if (overlay) {
       const marginX = width * 0.2;
       const marginY = height * 0.2;
       const overlayMaxX = width - 120 - 2 * marginX;
       const overlayMaxY = height - 120 - 2 * marginY;
       overlay.style.left = marginX + Math.floor(Math.random() * overlayMaxX) + 'px';
       overlay.style.top = marginY + Math.floor(Math.random() * overlayMaxY) + 'px';
-
-      container.appendChild(overlay);
-      makeDraggable(overlay);
-    }, 500);
+    }
   };
 }
 
 // Start the collage
 addSingleImage();
-
