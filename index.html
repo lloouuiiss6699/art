@@ -1,35 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>art</title>
-    <style>
-        body {
-            background-color: #fff; /* White background */
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>art</title>
+  <style>
+    body {
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      overflow: auto;
+    }
 
-        #grid {
-            position: relative;
-            width: 150vw; /* Slightly larger than viewport */
-            height: 150vh; /* Slightly larger than viewport */
-        }
+    #grid {
+      position: relative;
+      width: 120vw;  /* Slightly larger than viewport */
+      height: 120vh;
+      margin: 0 auto;
+    }
 
-        .image-container {
-            position: absolute;
-        }
+    .image-container {
+      position: absolute;
+    }
 
-        .overlay {
-            position: absolute;
-            cursor: grab;
-        }
-    </style>
+    .overlay {
+      position: absolute;
+      cursor: grab;
+    }
+  </style>
 </head>
 <body>
-    <div id="grid"></div>
-    <script src="script.js"></script>
+  <div id="grid"></div>
+  <script src="script.js"></script>
 </body>
 </html>
+
