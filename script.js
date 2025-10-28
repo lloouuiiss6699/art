@@ -56,7 +56,6 @@ function addSingleImage() {
   const bg = new Image();
   bg.src = imgData.src;
 
-  // Only append overlay after background has loaded
   bg.onload = () => {
     const scale = getRandomScale();
     const width = bg.naturalWidth * scale;
@@ -78,28 +77,30 @@ function addSingleImage() {
 
     container.appendChild(bg);
 
-    // Delay overlay by 0.5s
-    setTimeout(() => {
-      const overlay = document.createElement('img');
-      overlay.src = overlaySrc;
-      overlay.className = 'overlay';
-      overlay.style.width = '120px';
-      overlay.style.height = 'auto';
-      overlay.style.display = 'block';
-      overlay.style.transformOrigin = 'center center';
-      overlay.style.transform = `rotate(${getRandomRotation()}deg)`;
+    // Ensure container is fully rendered before adding overlay
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const overlay = document.createElement('img');
+        overlay.src = overlaySrc;
+        overlay.className = 'overlay';
+        overlay.style.width = '120px';
+        overlay.style.height = 'auto';
+        overlay.style.display = 'block';
+        overlay.style.transformOrigin = 'center center';
+        overlay.style.transform = `rotate(${getRandomRotation()}deg)`;
 
-      // Overlay inside inner 60% of image (20% margin)
-      const marginX = width * 0.2;
-      const marginY = height * 0.2;
-      const overlayMaxX = width - 120 - 2 * marginX;
-      const overlayMaxY = height - 120 - 2 * marginY;
-      overlay.style.left = marginX + Math.floor(Math.random() * overlayMaxX) + 'px';
-      overlay.style.top = marginY + Math.floor(Math.random() * overlayMaxY) + 'px';
+        // Overlay inside inner 60% of image (20% margin)
+        const marginX = width * 0.2;
+        const marginY = height * 0.2;
+        const overlayMaxX = width - 120 - 2 * marginX;
+        const overlayMaxY = height - 120 - 2 * marginY;
+        overlay.style.left = marginX + Math.floor(Math.random() * overlayMaxX) + 'px';
+        overlay.style.top = marginY + Math.floor(Math.random() * overlayMaxY) + 'px';
 
-      container.appendChild(overlay);
-      makeDraggable(overlay);
-    }, 500);
+        container.appendChild(overlay);
+        makeDraggable(overlay);
+      }, 500); // suspense delay
+    });
   };
 }
 
