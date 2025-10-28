@@ -3,33 +3,11 @@ const overlaySrc = 'mee.png'; // Your overlay image
 const batchSize = 12;
 let loading = false;
 
-// Fetch a random Wikipedia image with CORS enabled
-async function getRandomWikipediaImage() {
-    try {
-        let response = await fetch(
-            "https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&list=random&rnnamespace=0&rnlimit=1",
-            { mode: 'cors' }
-        );
-        let data = await response.json();
-        let page = data.query.random[0];
-
-        let pageTitle = encodeURIComponent(page.title);
-        let imageResponse = await fetch(
-            `https://en.wikipedia.org/w/api.php?action=query&titles=${pageTitle}&prop=pageimages&format=json&pithumbsize=600&origin=*`,
-            { mode: 'cors' }
-        );
-        let imageData = await imageResponse.json();
-        let pages = imageData.query.pages;
-        let pageId = Object.keys(pages)[0];
-
-        if (pages[pageId].thumbnail) {
-            return pages[pageId].thumbnail.source;
-        } else {
-            return getRandomWikipediaImage(); // Retry if no image
-        }
-    } catch (error) {
-        console.error(error);
-    }
+// Generate a random Picsum image URL
+function getRandomImage() {
+    const width = 400 + Math.floor(Math.random() * 200);  // 400-600px
+    const height = 300 + Math.floor(Math.random() * 200); // 300-500px
+    return `https://picsum.photos/${width}/${height}?random=${Math.random()}`;
 }
 
 // Make overlay draggable
@@ -59,17 +37,16 @@ function makeDraggable(el) {
 }
 
 // Load random images into the grid
-async function loadMoreImages() {
+function loadMoreImages() {
     if (loading) return;
     loading = true;
 
     for (let i = 0; i < batchSize; i++) {
-        let imgSrc = await getRandomWikipediaImage();
         const container = document.createElement('div');
         container.className = 'image-container';
 
         const bg = document.createElement('img');
-        bg.src = imgSrc;
+        bg.src = getRandomImage();
 
         const overlay = document.createElement('img');
         overlay.src = overlaySrc;
