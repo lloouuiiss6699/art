@@ -1,12 +1,13 @@
 const grid = document.getElementById('grid');
 const overlaySrc = 'mee.png';
-const batchSize = 10; // Number of images per load
+const batchSize = 4; // fewer images per batch
 let loading = false;
+let cooldown = false;
 
-// Generate a random Picsum image URL (larger images for visible scaling)
+// Generate a random Picsum image URL (larger for noticeable scaling)
 function getRandomImage() {
-  const width = 500 + Math.floor(Math.random() * 500);  // 500-1000px
-  const height = 400 + Math.floor(Math.random() * 400); // 400-800px
+  const width = 800 + Math.floor(Math.random() * 400);  // 800-1200px
+  const height = 600 + Math.floor(Math.random() * 300); // 600-900px
   return { src: `https://picsum.photos/${width}/${height}?random=${Math.random()}`, width, height };
 }
 
@@ -36,13 +37,13 @@ function makeDraggable(el) {
   });
 }
 
-// Load images with staggered delay
+// Load images with stagger and larger scale
 function loadMoreImages() {
   if (loading) return;
   loading = true;
 
   for (let i = 0; i < batchSize; i++) {
-    const delay = i * 500 + Math.floor(Math.random() * 300); // 500-800ms stagger
+    const delay = i * 600 + Math.floor(Math.random() * 400); // 600-1000ms stagger
     setTimeout(() => {
       const imgData = getRandomImage();
       const container = document.createElement('div');
@@ -52,7 +53,7 @@ function loadMoreImages() {
       bg.src = imgData.src;
 
       bg.onload = () => {
-        const scale = 0.5; // Half of natural size
+        const scale = 0.8; // 80% of natural size
         const width = bg.naturalWidth * scale;
         const height = bg.naturalHeight * scale;
         bg.width = width;
@@ -73,7 +74,6 @@ function loadMoreImages() {
         overlay.style.width = '100px';
         overlay.style.height = 'auto';
 
-        // Random overlay position inside image
         const overlayMaxX = width - 100;
         const overlayMaxY = height - 100;
         overlay.style.left = Math.floor(Math.random() * overlayMaxX) + 'px';
@@ -88,15 +88,21 @@ function loadMoreImages() {
     }, delay);
   }
 
-  loading = false;
+  // Small cooldown to prevent too many images loading at once
+  setTimeout(() => {
+    loading = false;
+  }, 1200);
 }
 
-// Infinite scroll
+// Infinite scroll with cooldown
 window.addEventListener('scroll', () => {
+  if (cooldown) return;
   if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
     loadMoreImages();
+    cooldown = true;
+    setTimeout(() => { cooldown = false; }, 1000); // 1s cooldown
   }
 });
 
-// Load initial batch
+// Initial batch
 loadMoreImages();
